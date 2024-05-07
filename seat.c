@@ -309,24 +309,23 @@ handle_key_event(struct wlr_keyboard *keyboard, struct cg_seat *seat, void *data
 	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 
 	xkb_keysym_t sym = xkb_state_key_get_one_sym(
-                    keyboard->xkb_state, keycode);
+		keyboard->xkb_state, keycode);
 	char buf[128];
-    xkb_keysym_get_name(sym, buf, sizeof(buf));
+
+	xkb_keysym_get_name(sym, buf, sizeof(buf));
 	const char *action = event->state == WL_KEYBOARD_KEY_STATE_PRESSED ? "DOWN" : "UP";
 
-    if (strcmp(buf, "Control_L") == 0) {
-        printf("/dev/input/wl_keyboard: EV_KEY KEY_LEFTCTRL %s\n", action);
-
-    } else if (strcmp(buf, "Control_R") == 0) {
-        printf("/dev/input/wl_keyboard: EV_KEY KEY_RIGHTCTRL %s\n", action);
-    } else if (strcmp(buf, "quotedbl") == 0) {
-        printf("/dev/input/wl_keyboard: EV_KEY KEY_GRAVE %s\n", action);
-    } else {
+	if (strcmp(buf, "Control_L") == 0) {
+		printf("/dev/input/wl_keyboard: EV_KEY KEY_LEFTCTRL %s\n", action);
+	} else if (strcmp(buf, "Control_R") == 0) {
+		printf("/dev/input/wl_keyboard: EV_KEY KEY_RIGHTCTRL %s\n", action);
+	} else if (strcmp(buf, "quotedbl") == 0) {
+		printf("/dev/input/wl_keyboard: EV_KEY KEY_GRAVE %s\n", action);
+	} else {
 		int buf_n = strlen(buf);
-        for (int i=0;i<buf_n;i++) buf[i] = toupper(buf[i]);
-        printf("/dev/input/wl_keyboard: EV_KEY KEY_%s %s\n", buf, action);
-    }
-
+		for (int i=0;i<buf_n;i++) buf[i] = toupper(buf[i]);
+		printf("/dev/input/wl_keyboard: EV_KEY KEY_%s %s\n", buf, action);
+	}
 }
 
 static void
@@ -611,7 +610,7 @@ handle_cursor_axis(struct wl_listener *listener, void *data)
 {
 	struct wlr_pointer_axis_event *event = data;
 	int delta;
-	
+
 	if (event->delta_discrete > 0 || event->delta > 0)
 		delta = -1;
 	else if (event->delta_discrete < 0 || event->delta < 0)
@@ -620,7 +619,25 @@ handle_cursor_axis(struct wl_listener *listener, void *data)
 		return;
 
 	printf("/dev/input/wl_pointer_axis: EV_REL %s %d\n",
-      (event->orientation == WLR_AXIS_ORIENTATION_VERTICAL) ? "REL_WHEEL" : "REL_HWHEEL", delta);
+	(event->orientation == WLR_AXIS_ORIENTATION_VERTICAL) ? "REL_WHEEL" : "REL_HWHEEL", delta);
+}
+
+
+char
+*get_button_name(uint32_t button_code)
+{
+	switch (button_code) {
+		case BTN_LEFT:
+			return "BTN_LEFT";
+		case BTN_MIDDLE:
+			return "BTN_MIDDLE";
+		case BTN_EXTRA:
+			return "BTN_EXTRA";
+		case BTN_SIDE:
+			return "BTN_SIDE";
+		default:
+			return "BTN_RIGHT";
+	}
 }
 
 static void
@@ -629,8 +646,9 @@ handle_cursor_button(struct wl_listener *listener, void *data)
 	struct wlr_pointer_button_event *event = data;
 
 	int action = event->state == WLR_BUTTON_PRESSED ? 1 : 0;
-    const char *code = event->button == BTN_LEFT ? "BTN_LEFT" : "BTN_RIGHT";
-    printf("/dev/input/wl_pointer_button: EV_KEY %s %d\n", code, action);
+
+	const char *code = get_button_name(event->button);
+	printf("/dev/input/wl_pointer_button: EV_KEY %s %d\n", code, action);
 }
 
 static void
