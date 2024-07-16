@@ -11,19 +11,19 @@ diff --git a/backend/x11/output.c b/backend/x11/output.c
 index f4d87624..b348c868 100644
 --- a/backend/x11/output.c
 +++ b/backend/x11/output.c
-@@ -678,6 +678,18 @@ struct wlr_output *wlr_x11_output_create(struct wlr_backend *backend) {
- 	wl_signal_emit_mutable(&x11->backend.events.new_input, &output->pointer.base);
- 	wl_signal_emit_mutable(&x11->backend.events.new_input, &output->touch.base);
-+       
+@@ -657,6 +657,26 @@ struct wlr_output *wlr_x11_output_create(struct wlr_backend *backend) {
+	wl_signal_emit_mutable(&x11->backend.events.new_input, &output->pointer.base);
+	wl_signal_emit_mutable(&x11->backend.events.new_input, &output->touch.base);
+
 +   xcb_cursor_t cursor;
 +   xcb_font_t cursor_font=0;
 +   cursor = xcb_generate_id (x11->xcb);
 +   if (!cursor_font) {
-+    	cursor_font = xcb_generate_id (x11->xcb);
-+   	xcb_open_font (x11->xcb, cursor_font, strlen ("cursor"), "cursor");
++       cursor_font = xcb_generate_id (x11->xcb);
++       xcb_open_font (x11->xcb, cursor_font, strlen ("cursor"), "cursor");
 +   }
-+        
-+	xcb_grab_pointer(
++
++       xcb_grab_pointer(
 +        x11->xcb,
 +        false,               /* get all pointer events specified by the following mask */
 +        x11->screen->root,        /* grab the root window */
@@ -35,9 +35,9 @@ index f4d87624..b348c868 100644
 +        XCB_CURRENT_TIME
 +    );
 +
- 	return wlr_output;
+	return wlr_output;
  }
- 
--- 
+
+--
 2.45.1
 
