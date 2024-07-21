@@ -1,45 +1,45 @@
 #!/bin/sh
-if [ "$(id -u)" != "0" ]; then
+[ "$(id -u)" != "0" ] && {
 	echo "This script requires root access to access waydroid shell."
 	exit 1
-fi
+}
 
 [ "$XDG_RUNTIME_DIR" = "" ] && {
 	echo "This script should be run with --preserve-env (-E) flag"
 	exit 1
 }
 
-if [ $# -eq 0 ]; then
+[ $# -eq 0 ] && {
 	echo "User not specified."
 	exit 1
-fi
+}
 
 while [ $# -gt 0 ]; do
-    case "$1" in
-    --user)
-        shift
-        user="$1"
-        shift
-        ;;
-    --window-width)
-        shift
-        XTMAPPER_WIDTH="$1"
-        shift
-        ;;
-    --window-height)
-        shift
-        XTMAPPER_HEIGHT="$1"
-        shift
-        ;;
-    --window-no-title-bar)
-        shift
-        export WLR_NO_DECORATION=1
-        ;;
-    *)
-	echo "Invalid argument"
-        exit 1
-	;;
-    esac
+	case "$1" in
+		--user)
+			shift
+			user="$1"
+			shift
+			;;
+		--window-width)
+			shift
+			XTMAPPER_WIDTH="$1"
+			shift
+			;;
+		--window-height)
+			shift
+			XTMAPPER_HEIGHT="$1"
+			shift
+		;;
+		--window-no-title-bar)
+			shift
+			export WLR_NO_DECORATION=1
+			;;
+		*)
+			echo "Invalid argument"
+			exit 1
+			;;
+	esac
 done
 
 export XTMAPPER_WIDTH=${XTMAPPER_WIDTH:-1366}
@@ -62,7 +62,7 @@ case $(waydroid status | head -n1) in
 esac
 
 su "$user" --command "./build/cage waydroid show-full-ui" | (
-	while [[ -z $(waydroid shell getprop sys.boot_completed) ]]; do
+	while [ -z $(waydroid shell getprop sys.boot_completed) ]; do
 		sleep 1;
 	done;
 
