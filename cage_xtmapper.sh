@@ -38,6 +38,22 @@ done
 export XTMAPPER_WIDTH=${XTMAPPER_WIDTH:-1366}
 export XTMAPPER_HEIGHT=${XTMAPPER_HEIGHT:-740}
 
+prompt() {
+	printf "$1"
+	read INPUT
+	case $INPUT in
+		[yY] ) return 0 ;;
+		* ) return 1 ;;
+	esac
+}
+
+_STATUS=$(waydroid status | head -n1 | sed 's/Session:\s//g')
+case $(waydroid status | head -n1) in
+	*"STOPPED"* ) ;;
+	* ) prompt "You need to run script with Waydroid NOT currently running! Stop Waydroid now? (make sure to save your progress!) [y/N] " &&\
+		su "$user" --command "waydroid session stop" || exit 1 ;;
+esac
+
 su "$user" --command "./build/cage waydroid show-full-ui" | (
 	while [[ -z $(waydroid shell getprop sys.boot_completed) ]]; do
 		sleep 1;
