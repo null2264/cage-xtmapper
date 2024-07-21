@@ -316,6 +316,22 @@ handle_key_event(struct wlr_keyboard *keyboard, struct cg_seat *seat, void *data
 	xkb_keysym_get_name(sym, buf, sizeof(buf));
 	const char *action = event->state == WL_KEYBOARD_KEY_STATE_PRESSED ? "DOWN" : "UP";
 
+	int buf_n = strlen(buf);
+	char *upper = buf;
+	for (int i=0; i<buf_n; i++) upper[i] = toupper(buf[i]);
+	char keybuf[132];
+	sprintf(keybuf, "KEY_%s", upper);
+
+	if(strcmp(keybuf, TOGGLEKEY) == 0) {
+		if(strcmp(action, "DOWN") == 0) {
+			seat->xtmapper_disabled = !seat->xtmapper_disabled;
+			return;
+		}
+	}
+
+	if (seat->xtmapper_disabled)
+		return;
+
 	if (strcmp(buf, "Control_L") == 0) {
 		printf("/dev/input/wl_keyboard: EV_KEY KEY_LEFTCTRL %s\n", action);
 	} else if (strcmp(buf, "Control_R") == 0) {
@@ -323,15 +339,6 @@ handle_key_event(struct wlr_keyboard *keyboard, struct cg_seat *seat, void *data
 	} else if (strcmp(buf, "quotedbl") == 0) {
 		printf("/dev/input/wl_keyboard: EV_KEY KEY_GRAVE %s\n", action);
 	} else {
-		int buf_n = strlen(buf);
-		for (int i=0; i<buf_n; i++) buf[i] = toupper(buf[i]);
-		char keybuf[132];
-		sprintf(keybuf, "KEY_%s", buf);
-		if(strcmp(keybuf, TOGGLEKEY) == 0) {
-			if(strcmp(action, "DOWN") == 0) {
-				seat->xtmapper_disabled = !seat->xtmapper_disabled;
-			}
-		}
 		printf("/dev/input/wl_keyboard: EV_KEY %s %s\n", keybuf, action);
 	}
 }
