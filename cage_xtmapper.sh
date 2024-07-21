@@ -1,8 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 if [ "$(id -u)" != "0" ]; then
 	echo "This script requires root access to access waydroid shell."
 	exit 1
 fi
+
+[ "$XDG_RUNTIME_DIR" = "" ] && {
+	echo "This script should be run with --preserve-env (-E) flag"
+	exit 1
+}
 
 if [ $# -eq 0 ]; then
 	echo "User not specified."
@@ -14,14 +19,17 @@ while [ $# -gt 0 ]; do
     --user)
         shift
         user="$1"
+        shift
         ;;
     --window-width)
         shift
         XTMAPPER_WIDTH="$1"
+        shift
         ;;
     --window-height)
         shift
         XTMAPPER_HEIGHT="$1"
+        shift
         ;;
     --window-no-title-bar)
         shift
@@ -32,7 +40,6 @@ while [ $# -gt 0 ]; do
         exit 1
 	;;
     esac
-    shift
 done
 
 export XTMAPPER_WIDTH=${XTMAPPER_WIDTH:-1366}
