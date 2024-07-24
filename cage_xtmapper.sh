@@ -62,7 +62,9 @@ case $(waydroid status | head -n1) in
 esac
 
 su "$user" --command "./build/cage waydroid show-full-ui" | (
-	waydroid prop get sys.boot_completed 2>/dev/null
+	while ! waydroid prop get sys.boot_completed 2>/dev/null; do
+		sleep 1;
+	done
 
 	waydroid shell -- sh -c 'echo "/system/bin/app_process -Djava.library.path=$(echo /data/app/*/xtr.keymapper*/lib/x86_64) -Djava.class.path=$(echo /data/app/*/xtr.keymapper*/base.apk) / xtr.keymapper.server.RemoteServiceShell --wayland-client" > /tmp/xtmapper.sh' && \
 	exec waydroid shell -- sh /tmp/xtmapper.sh --wayland-client --width=$XTMAPPER_WIDTH --height=$XTMAPPER_HEIGHT
